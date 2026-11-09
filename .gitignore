@@ -72,6 +72,7 @@ firebase.json
 skills-lock.json
 .agents
 .claude
+.github
 
 # api java spring boot
 api/AGENTS.md
