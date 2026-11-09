@@ -41,7 +41,7 @@ bower_components
 # node-waf configuration
 .lock-wscript
 
-# Compiled binary addons (http://nodejs.org/api/addons.html)
+# Compiled binary addons (http://nodejs.orgapi/addons.html)
 build/Release
 
 # Dependency directories
@@ -74,38 +74,38 @@ skills-lock.json
 .claude
 
 # api java spring boot
-.api/AGENTS.md
-.api/api-inbox-ledger/.vscode
-.api/api-inbox-ledger/HELP.md
-.api/api-inbox-ledger/target/
-.api/api-inbox-ledger/.mvn/wrapper/maven-wrapper.jar
-.api/api-inbox-ledger/!**/src/main/**/target/
-.api/api-inbox-ledger/!**/src/test/**/target/
+api/AGENTS.md
+api/api-inbox-ledger/.vscode
+api/api-inbox-ledger/HELP.md
+api/api-inbox-ledger/target/
+api/api-inbox-ledger/.mvn/wrapper/maven-wrapper.jar
+api/api-inbox-ledger/!**/src/main/**/target/
+api/api-inbox-ledger/!**/src/test/**/target/
 
 ### STS ###
-.api/api-inbox-ledger/.apt_generated
-.api/api-inbox-ledger/.classpath
-.api/api-inbox-ledger/.factorypath
-.api/api-inbox-ledger/.project
-.api/api-inbox-ledger/.settings
-.api/api-inbox-ledger/.springBeans
-.api/api-inbox-ledger/.sts4-cache
+api/api-inbox-ledger/.apt_generated
+api/api-inbox-ledger/.classpath
+api/api-inbox-ledger/.factorypath
+api/api-inbox-ledger/.project
+api/api-inbox-ledger/.settings
+api/api-inbox-ledger/.springBeans
+api/api-inbox-ledger/.sts4-cache
 
 ### IntelliJ IDEA ###
-.api/api-inbox-ledger/.idea
-.api/api-inbox-ledger/*.iws
-.api/api-inbox-ledger/*.iml
-.api/api-inbox-ledger/*.ipr
+api/api-inbox-ledger/.idea
+api/api-inbox-ledger/*.iws
+api/api-inbox-ledger/*.iml
+api/api-inbox-ledger/*.ipr
 
 ### NetBeans ###
-.api/api-inbox-ledger//nbproject/private/
-.api/api-inbox-ledger//nbbuild/
-.api/api-inbox-ledger//dist/
-.api/api-inbox-ledger//nbdist/
-.api/api-inbox-ledger//.nb-gradle/
-.api/api-inbox-ledger/build/
-.api/api-inbox-ledger/!**/src/main/**/build/
-.api/api-inbox-ledger/!**/src/test/**/build/
+api/api-inbox-ledger//nbproject/private/
+api/api-inbox-ledger//nbbuild/
+api/api-inbox-ledger//dist/
+api/api-inbox-ledger//nbdist/
+api/api-inbox-ledger//.nb-gradle/
+api/api-inbox-ledger/build/
+api/api-inbox-ledger/!**/src/main/**/build/
+api/api-inbox-ledger/!**/src/test/**/build/
 
 ### VS Code ###
-.api/api-inbox-ledger/.vscode/
+api/api-inbox-ledger/.vscode/
