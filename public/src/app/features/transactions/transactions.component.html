@@ -1,0 +1,95 @@
+@if (vm$ | async; as vm) {
+  <div class="mx-auto max-w-6xl space-y-6">
+    <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Ledger</p>
+        <h1 class="text-2xl font-semibold text-gray-900">Transactions</h1>
+      </div>
+      <button mat-stroked-button [disabled]="!vm.filtered.length" (click)="exportCsv(vm.filtered)">
+        <mat-icon>download</mat-icon>
+        Export CSV
+      </button>
+    </header>
+
+    <!-- Filters -->
+    <form
+      [formGroup]="filterForm"
+      class="card grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4"
+      aria-label="Filter transactions"
+    >
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Search</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput formControlName="search" placeholder="Merchant or category" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="category">
+          <mat-option value="">All categories</mat-option>
+          @for (category of categories; track category) {
+            <mat-option [value]="category">{{ category }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Source</mat-label>
+        <mat-select formControlName="source">
+          <mat-option value="">All sources</mat-option>
+          @for (source of sources; track source) {
+            <mat-option [value]="source">{{ source }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Date range</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input matStartDate formControlName="start" placeholder="Start" />
+          <input matEndDate formControlName="end" placeholder="End" />
+        </mat-date-range-input>
+        <mat-datepicker-toggle matIconSuffix [for]="picker" />
+        <mat-date-range-picker #picker />
+      </mat-form-field>
+    </form>
+
+    <!-- Results -->
+    <section class="card">
+      <div class="flex items-center justify-between px-6 pt-5 pb-2">
+        <h2 class="text-base font-semibold text-gray-900">
+          {{ vm.loading ? 'Loading…' : vm.total + (vm.total === 1 ? ' transaction' : ' transactions') }}
+        </h2>
+        @if (vm.hasFilters) {
+          <button mat-button type="button" (click)="clearFilters()">
+            <mat-icon>filter_alt_off</mat-icon>
+            Clear filters
+          </button>
+        }
+      </div>
+
+      @if (vm.loading) {
+        <app-loading-state [rows]="8" />
+      } @else if (vm.error) {
+        <app-error-state [message]="vm.error" (retry)="retry()" />
+      } @else {
+        <app-transaction-table
+          [transactions]="vm.pageItems"
+          emptyTitle="No transactions found"
+          emptyMessage="Try adjusting or clearing your filters."
+        />
+        @if (vm.total > 0) {
+          <mat-paginator
+            [length]="vm.total"
+            [pageIndex]="vm.pageIndex"
+            [pageSize]="vm.pageSize"
+            [pageSizeOptions]="pageSizeOptions"
+            (page)="onPage($event)"
+            aria-label="Select page of transactions"
+          />
+        }
+      }
+    </section>
+  </div>
+}
+

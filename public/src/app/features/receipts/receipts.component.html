@@ -1,0 +1,151 @@
+@if (vm$ | async; as state) {
+  <div class="mx-auto max-w-6xl space-y-6">
+    <header>
+      <p class="text-sm font-medium text-gray-500">Ingestion</p>
+      <h1 class="text-2xl font-semibold text-gray-900">Receipts inbox</h1>
+    </header>
+
+    <!-- Forwarding address card -->
+    @if (user$ | async; as user) {
+      <section class="card flex flex-col justify-between gap-4 p-6 sm:flex-row sm:items-center">
+        <div class="space-y-1">
+          <p class="text-xs font-medium uppercase tracking-wider text-gray-500">
+            Forward payment emails to
+          </p>
+          <p class="font-mono text-lg font-semibold text-gray-900">
+            {{ user.receiptsAddress || fallbackAddress }}
+          </p>
+          <p class="text-sm text-gray-500">
+            Bank transfers, QRIS confirmations, e-wallet and marketplace receipts. Set up a Gmail
+            filter to forward them automatically.
+          </p>
+        </div>
+        <button
+          mat-stroked-button
+          type="button"
+          class="shrink-0"
+          (click)="copyAddress(user.receiptsAddress || fallbackAddress)"
+        >
+          <mat-icon>content_copy</mat-icon>
+          Copy address
+        </button>
+      </section>
+    }
+
+    @if (state.loading) {
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="card"><app-loading-state [rows]="2" /></div>
+        }
+      </div>
+      <div class="card"><app-loading-state [rows]="6" /></div>
+    } @else if (state.error) {
+      <div class="card"><app-error-state [message]="state.error" (retry)="retry()" /></div>
+    } @else {
+      @if (state.data; as vm) {
+      <!-- Ingestion stat counters -->
+      <section class="grid grid-cols-2 gap-4 sm:grid-cols-4" aria-label="Ingestion counters">
+        <app-stat-card label="Parsed" [value]="vm.stats.parsed" />
+        <app-stat-card label="In queue" [value]="vm.stats.inQueue" />
+        <app-stat-card label="Duplicates skipped" [value]="vm.stats.duplicatesSkipped" />
+        <app-stat-card
+          label="Failed"
+          [value]="vm.stats.failed"
+          [variant]="vm.stats.failed > 0 ? 'warning' : 'default'"
+        />
+      </section>
+
+      <!-- Received emails table with status tabs -->
+      <section class="card overflow-hidden">
+        <div class="flex flex-col gap-2 border-b border-gray-200 px-6 pt-5 sm:flex-row sm:items-center sm:justify-between">
+          <h2 class="text-base font-semibold text-gray-900">Received emails</h2>
+          <mat-tab-group
+            animationDuration="150ms"
+            (selectedTabChange)="onTabChange($event)"
+            aria-label="Filter receipts by status"
+          >
+            @for (tab of tabs; track tab) {
+              <mat-tab [label]="tab" />
+            }
+          </mat-tab-group>
+        </div>
+
+        @if (vm.filtered.length) {
+          <div class="overflow-x-auto">
+            <table mat-table [dataSource]="vm.filtered" [trackBy]="trackById" class="w-full">
+              <ng-container matColumnDef="received">
+                <th mat-header-cell *matHeaderCellDef>Received</th>
+                <td mat-cell *matCellDef="let r" class="whitespace-nowrap text-gray-600">
+                  {{ r.receivedAt | date: 'dd MMM, HH:mm' }}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="from">
+                <th mat-header-cell *matHeaderCellDef>From</th>
+                <td mat-cell *matCellDef="let r" class="whitespace-nowrap font-medium text-gray-900">
+                  {{ r.from }}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="subject">
+                <th mat-header-cell *matHeaderCellDef>Subject</th>
+                <td mat-cell *matCellDef="let r" class="text-gray-700">{{ r.subject }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let r">
+                  <app-badge [label]="r.status">
+                    @if (r.status === 'Processing') {
+                      <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-gray-500"></span>
+                    }
+                  </app-badge>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="result">
+                <th mat-header-cell *matHeaderCellDef class="text-right">Result</th>
+                <td mat-cell *matCellDef="let r" class="whitespace-nowrap text-right text-gray-700">
+                  <div class="inline-flex items-center justify-end gap-2">
+                    <span>{{ r.result ?? 'In queue' }}</span>
+                    @if (r.status === 'Failed') {
+                      <button
+                        mat-icon-button
+                        type="button"
+                        matTooltip="Retry parsing"
+                        aria-label="Retry parsing receipt"
+                        (click)="retryReceipt(r)"
+                      >
+                        <mat-icon class="icon-md">refresh</mat-icon>
+                      </button>
+                    }
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="columns"></tr>
+              <tr mat-row *matRowDef="let row; columns: columns" class="hover:bg-gray-50"></tr>
+            </table>
+          </div>
+        } @else {
+          <app-empty-state
+            icon="mark_email_read"
+            title="No receipts in this view"
+            message="Forwarded payment emails matching this filter will show up here."
+          />
+        }
+      </section>
+
+      <!-- Info note -->
+      <div class="card flex items-start gap-3 bg-blue-50/50 p-4 text-sm text-gray-600">
+        <mat-icon class="icon-md shrink-0 text-blue-600">info</mat-icon>
+        <p>
+          Duplicates are detected automatically, so forwarding the same receipt twice never creates
+          two transactions. Failed emails can be retried after a parser update.
+        </p>
+      </div>
+      }
+    }
+  </div>
+}
+

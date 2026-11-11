@@ -1,0 +1,32 @@
+<div class="space-y-2">
+  <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+    <span class="text-sm font-medium text-gray-900">{{ budget.name }}</span>
+    <span class="text-sm text-gray-500">
+      <span class="font-medium text-gray-900">{{ budget.used | currencyIdr }}</span>
+      / {{ budget.limit | currencyIdr }}
+    </span>
+  </div>
+
+  <div
+    class="h-2 w-full overflow-hidden rounded-full bg-gray-200"
+    role="progressbar"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    [attr.aria-valuenow]="fill"
+    [attr.aria-label]="budget.name + ' budget usage'"
+  >
+    <div
+      class="h-full rounded-full transition-all duration-500"
+      [ngClass]="isWarning ? 'bg-orange-500' : 'bg-blue-500'"
+      [style.width.%]="fill"
+    ></div>
+  </div>
+
+  @if (budget.alertSent) {
+    <p class="flex items-center gap-1 text-xs text-orange-600">
+      <mat-icon class="icon-sm">notifications_active</mat-icon>
+      {{ usage | number: '1.0-0' }}% used — alert sent to your phone
+    </p>
+  }
+</div>
+

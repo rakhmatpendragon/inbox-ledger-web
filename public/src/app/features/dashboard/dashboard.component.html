@@ -1,0 +1,105 @@
+@if (state$ | async; as state) {
+<div class="mx-auto max-w-6xl space-y-6">
+  <!-- Page header -->
+  <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="text-sm font-medium text-gray-500">Overview</p>
+      <h1 class="text-2xl font-semibold text-gray-900">{{ state.data?.summary?.month ?? '…' }}</h1>
+    </div>
+    @if (user$ | async; as user) {
+      <div class="flex items-center gap-3 text-sm text-gray-500">
+        <app-badge label="Live">
+          <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500"></span>
+        </app-badge>
+        <span class="truncate">{{ user.receiptsAddress }}</span>
+      </div>
+    }
+  </header>
+
+  @if (state.loading) {
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="card"><app-loading-state [rows]="2" /></div>
+        }
+      </div>
+      <div class="card"><app-loading-state [rows]="6" /></div>
+    } @else if (state.error) {
+      <div class="card"><app-error-state [message]="state.error" (retry)="retry()" /></div>
+    } @else {
+      @if (state.data; as vm) {
+        <!-- Summary cards -->
+        <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Monthly summary">
+          <app-stat-card
+            label="Spent this month"
+            [value]="vm.summary.totalSpent | currencyIdr"
+            subtext="Sample data"
+          />
+          <app-stat-card
+            label="Transactions"
+            [value]="vm.summary.transactionCount"
+            subtext="From forwarded receipts"
+          />
+          <app-stat-card
+            label="Receipts parsed"
+            [value]="vm.summary.receiptsParsed + ' / ' + vm.summary.transactionCount"
+            [subtext]="vm.summary.receiptsNeedReview + ' need review'"
+          />
+          <app-stat-card
+            label="Budgets near limit"
+            [value]="vm.nearLimitCount"
+            [subtext]="vm.nearLimitLabel"
+            [variant]="vm.nearLimitCount > 0 ? 'warning' : 'default'"
+          />
+        </section>
+
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-5">
+          <!-- Budgets -->
+          <section class="card p-6 lg:col-span-3">
+            <div class="mb-5 flex items-center justify-between">
+              <h2 class="text-base font-semibold text-gray-900">Budgets</h2>
+              <a mat-button routerLink="/app/budgets">Manage</a>
+            </div>
+            @if (vm.budgets.length) {
+              <div class="space-y-5">
+                @for (budget of vm.budgets; track budget.id) {
+                  <app-budget-bar [budget]="budget" />
+                }
+              </div>
+            } @else {
+              <app-empty-state icon="savings" title="No budgets yet" message="Create a budget to get alerts before you overspend." />
+            }
+          </section>
+
+          <!-- Top merchants -->
+          <section class="card p-6 lg:col-span-2">
+            <h2 class="mb-5 text-base font-semibold text-gray-900">Top merchants</h2>
+            @if (vm.summary.topMerchants.length) {
+              <ol class="space-y-4">
+                @for (merchant of vm.summary.topMerchants; track merchant.name; let i = $index) {
+                  <li class="flex items-center gap-3">
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600">
+                      {{ i + 1 }}
+                    </span>
+                    <span class="flex-1 truncate text-sm text-gray-900">{{ merchant.name }}</span>
+                    <span class="text-sm font-medium text-gray-900">{{ merchant.amount | currencyIdr }}</span>
+                  </li>
+                }
+              </ol>
+            } @else {
+              <app-empty-state icon="storefront" title="No merchants yet" />
+            }
+          </section>
+        </div>
+
+        <!-- Recent transactions -->
+        <section class="card">
+          <div class="flex items-center justify-between px-6 pt-5 pb-2">
+            <h2 class="text-base font-semibold text-gray-900">Recent transactions</h2>
+            <a mat-button routerLink="/app/transactions">View all</a>
+          </div>
+          <app-transaction-table [transactions]="vm.summary.recentTransactions" />
+        </section>
+      }
+    }
+</div>
+}

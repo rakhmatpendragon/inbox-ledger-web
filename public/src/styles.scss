@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  @apply bg-gray-50 text-gray-900 antialiased;
+}
+
+/* Small Material icon helpers (keeps icons aligned with text-sm / text-xs) */
+.mat-icon.icon-sm {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  line-height: 16px;
+}
+
+.mat-icon.icon-md {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+/* Tables sit inside white cards — let the card own the background */
+.mat-mdc-table {
+  background: transparent !important;
+}
+
+/* Card surface used across feature pages (components layer, so utilities can override it) */
+@layer components {
+  .card {
+    @apply rounded-xl border border-gray-200 bg-white shadow-sm;
+  }
+}

@@ -1,0 +1,61 @@
+@if (state$ | async; as state) {
+  <div class="mx-auto max-w-4xl space-y-6">
+    <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-500">Spending limits</p>
+        <h1 class="text-2xl font-semibold text-gray-900">Budgets</h1>
+      </div>
+      <button mat-flat-button color="primary" type="button" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon>
+        Create budget
+      </button>
+    </header>
+
+    @if (state.loading) {
+      <div class="card"><app-loading-state [rows]="6" /></div>
+    } @else if (state.error) {
+      <div class="card"><app-error-state [message]="state.error" (retry)="retry()" /></div>
+    } @else {
+      @if (state.data; as budgets) {
+        @if (budgets.length) {
+          <div class="space-y-4">
+            @for (budget of budgets; track budget.id) {
+              <div class="card flex items-start gap-4 p-5">
+                <div class="flex-1">
+                  <app-budget-bar [budget]="budget" />
+                </div>
+                <button
+                  mat-icon-button
+                  type="button"
+                  [matMenuTriggerFor]="menu"
+                  [attr.aria-label]="'Actions for ' + budget.name"
+                >
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item type="button" (click)="openEditDialog(budget)">
+                    <mat-icon>edit</mat-icon>
+                    <span>Edit</span>
+                  </button>
+                  <button mat-menu-item type="button" (click)="deleteBudget(budget)">
+                    <mat-icon>delete</mat-icon>
+                    <span>Delete</span>
+                  </button>
+                </mat-menu>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="card">
+            <app-empty-state
+              icon="savings"
+              title="No budgets configured"
+              message="Create your first monthly budget to receive alerts before you overspend."
+            />
+          </div>
+        }
+      }
+    }
+  </div>
+}
+

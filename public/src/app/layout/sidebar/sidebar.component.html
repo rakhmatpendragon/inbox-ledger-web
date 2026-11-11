@@ -1,0 +1,39 @@
+<aside class="flex h-full w-64 flex-col bg-gray-900 text-gray-100">
+  <div class="flex h-16 items-center gap-2.5 px-6">
+    <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500">
+      <mat-icon class="icon-md text-white">inbox</mat-icon>
+    </span>
+    <span class="text-base font-semibold tracking-tight">Inbox Ledger</span>
+  </div>
+
+  <nav class="flex-1 space-y-1 px-3 py-4" aria-label="Main navigation">
+    @for (item of navItems; track item.route) {
+      <a
+        class="nav-link"
+        [routerLink]="item.route"
+        routerLinkActive="nav-link--active"
+        ariaCurrentWhenActive="page"
+        (click)="navigate.emit()"
+      >
+        <mat-icon class="icon-md">{{ item.icon }}</mat-icon>
+        {{ item.label }}
+      </a>
+    }
+  </nav>
+
+  @if (user$ | async; as user) {
+    <div class="flex items-center gap-3 border-t border-gray-800 px-5 py-4">
+      <span
+        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white"
+        aria-hidden="true"
+      >
+        {{ user.displayName.charAt(0).toUpperCase() }}
+      </span>
+      <div class="min-w-0">
+        <p class="truncate text-sm font-medium text-white">{{ user.displayName }}</p>
+        <p class="truncate text-xs text-gray-400">Signed in with Google</p>
+      </div>
+    </div>
+  }
+</aside>
+
