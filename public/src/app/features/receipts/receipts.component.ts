@@ -1,7 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTabChangeEvent } from '@angular/material/tabs';
 import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 
 import { environment } from '@env/environment';
@@ -36,7 +35,9 @@ export class ReceiptsComponent {
   readonly fallbackAddress = environment.receiptsAddress;
 
   readonly tabs: readonly TabFilter[] = ['All', 'Parsed', 'Failed', 'Duplicate'];
-  readonly columns: readonly string[] = ['received', 'from', 'subject', 'status', 'result'];
+  /** True briefly after the receipts address was copied. */
+  readonly copied = signal(false);
+  private copiedTimer?: ReturnType<typeof setTimeout>;
 
   private readonly dataState$ = this.reload$.pipe(
     switchMap(() =>
@@ -62,14 +63,22 @@ export class ReceiptsComponent {
     }),
   );
 
-  onTabChange(event: MatTabChangeEvent): void {
-    const next = this.tabs[event.index] ?? 'All';
-    this.tab$.next(next);
+  constructor() {
+    inject(DestroyRef).onDestroy(() => clearTimeout(this.copiedTimer));
+  }
+
+  selectTab(tab: TabFilter): void {
+    this.tab$.next(tab);
   }
 
   copyAddress(address: string): void {
-    this.clipboard.copy(address);
-    this.snackBar.open('Copied!', undefined, { duration: 2000 });
+    if (!this.clipboard.copy(address)) {
+      this.snackBar.open('Could not copy address', 'Dismiss', { duration: 3500 });
+      return;
+    }
+    this.copied.set(true);
+    clearTimeout(this.copiedTimer);
+    this.copiedTimer = setTimeout(() => this.copied.set(false), 2000);
   }
 
   retryReceipt(receipt: Receipt): void {
@@ -83,10 +92,6 @@ export class ReceiptsComponent {
 
   retry(): void {
     this.reload$.next();
-  }
-
-  trackById(_: number, receipt: Receipt): string {
-    return receipt.id;
   }
 }
 

@@ -1,105 +1,101 @@
 @if (state$ | async; as state) {
-<div class="mx-auto max-w-6xl space-y-6">
+<div class="mx-auto flex max-w-[1180px] flex-col gap-6">
   <!-- Page header -->
-  <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-    <div>
-      <p class="text-sm font-medium text-gray-500">Overview</p>
-      <h1 class="text-2xl font-semibold text-gray-900">{{ state.data?.summary?.month ?? '…' }}</h1>
+  <header class="flex flex-wrap items-end justify-between gap-4">
+    <div class="flex flex-col gap-1">
+      <span class="page-eyebrow">Overview</span>
+      <h1 class="page-title">{{ state.data?.summary?.month ?? '…' }}</h1>
     </div>
     @if (user$ | async; as user) {
-      <div class="flex items-center gap-3 text-sm text-gray-500">
-        <app-badge label="Live">
-          <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-green-500"></span>
-        </app-badge>
-        <span class="truncate">{{ user.receiptsAddress }}</span>
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="inline-flex items-center gap-2 text-[13px] text-gray-600">
+          <span class="h-2 w-2 rounded-full bg-success-500"></span>Live
+        </span>
+        <button
+          type="button"
+          class="btn-secondary"
+          [attr.aria-label]="'Copy receipts address ' + (user.receiptsAddress || fallbackAddress)"
+          (click)="copyAddress(user.receiptsAddress || fallbackAddress)"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="11" height="11" rx="2" />
+            <path d="M5 15V5a1 1 0 0 1 1-1h10" />
+          </svg>
+          {{ copied() ? 'Copied' : user.receiptsAddress || fallbackAddress }}
+        </button>
       </div>
     }
   </header>
 
   @if (state.loading) {
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        @for (i of [1, 2, 3, 4]; track i) {
-          <div class="card"><app-loading-state [rows]="2" /></div>
-        }
-      </div>
-      <div class="card"><app-loading-state [rows]="6" /></div>
-    } @else if (state.error) {
-      <div class="card"><app-error-state [message]="state.error" (retry)="retry()" /></div>
-    } @else {
-      @if (state.data; as vm) {
-        <!-- Summary cards -->
-        <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Monthly summary">
-          <app-stat-card
-            label="Spent this month"
-            [value]="vm.summary.totalSpent | currencyIdr"
-            subtext="Sample data"
-          />
-          <app-stat-card
-            label="Transactions"
-            [value]="vm.summary.transactionCount"
-            subtext="From forwarded receipts"
-          />
-          <app-stat-card
-            label="Receipts parsed"
-            [value]="vm.summary.receiptsParsed + ' / ' + vm.summary.transactionCount"
-            [subtext]="vm.summary.receiptsNeedReview + ' need review'"
-          />
-          <app-stat-card
-            label="Budgets near limit"
-            [value]="vm.nearLimitCount"
-            [subtext]="vm.nearLimitLabel"
-            [variant]="vm.nearLimitCount > 0 ? 'warning' : 'default'"
-          />
-        </section>
-
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-5">
-          <!-- Budgets -->
-          <section class="card p-6 lg:col-span-3">
-            <div class="mb-5 flex items-center justify-between">
-              <h2 class="text-base font-semibold text-gray-900">Budgets</h2>
-              <a mat-button routerLink="/app/budgets">Manage</a>
-            </div>
-            @if (vm.budgets.length) {
-              <div class="space-y-5">
-                @for (budget of vm.budgets; track budget.id) {
-                  <app-budget-bar [budget]="budget" />
-                }
-              </div>
-            } @else {
-              <app-empty-state icon="savings" title="No budgets yet" message="Create a budget to get alerts before you overspend." />
-            }
-          </section>
-
-          <!-- Top merchants -->
-          <section class="card p-6 lg:col-span-2">
-            <h2 class="mb-5 text-base font-semibold text-gray-900">Top merchants</h2>
-            @if (vm.summary.topMerchants.length) {
-              <ol class="space-y-4">
-                @for (merchant of vm.summary.topMerchants; track merchant.name; let i = $index) {
-                  <li class="flex items-center gap-3">
-                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600">
-                      {{ i + 1 }}
-                    </span>
-                    <span class="flex-1 truncate text-sm text-gray-900">{{ merchant.name }}</span>
-                    <span class="text-sm font-medium text-gray-900">{{ merchant.amount | currencyIdr }}</span>
-                  </li>
-                }
-              </ol>
-            } @else {
-              <app-empty-state icon="storefront" title="No merchants yet" />
-            }
-          </section>
-        </div>
-
-        <!-- Recent transactions -->
-        <section class="card">
-          <div class="flex items-center justify-between px-6 pt-5 pb-2">
-            <h2 class="text-base font-semibold text-gray-900">Recent transactions</h2>
-            <a mat-button routerLink="/app/transactions">View all</a>
-          </div>
-          <app-transaction-table [transactions]="vm.summary.recentTransactions" />
-        </section>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <div class="card"><app-loading-state [rows]="2" /></div>
       }
+    </div>
+    <div class="card"><app-loading-state [rows]="6" /></div>
+  } @else if (state.error) {
+    <div class="card"><app-error-state [message]="state.error" (retry)="retry()" /></div>
+  } @else {
+    @if (state.data; as vm) {
+      <!-- Summary cards -->
+      <section class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4" aria-label="Monthly summary">
+        <app-stat-card label="Spent this month" [value]="vm.summary.totalSpent | currencyIdr" subtext="Sample data" />
+        <app-stat-card label="Transactions" [value]="vm.summary.transactionCount" subtext="From forwarded receipts" />
+        <app-stat-card
+          label="Receipts parsed"
+          [value]="vm.summary.receiptsParsed + ' / ' + vm.summary.transactionCount"
+          [subtext]="vm.summary.receiptsNeedReview + ' need review'"
+        />
+        <app-stat-card label="Budgets near limit" [value]="vm.nearLimitCount" [subtext]="vm.nearLimitLabel" />
+      </section>
+
+      <div class="flex flex-wrap items-stretch gap-4">
+        <!-- Budgets -->
+        <section aria-labelledby="budgets-h" class="card flex min-w-0 flex-[1_1_340px] flex-col gap-4 p-5">
+          <div class="flex items-center justify-between">
+            <h2 id="budgets-h" class="section-title">Budgets</h2>
+            <a class="link" routerLink="/app/budgets">Manage</a>
+          </div>
+          @if (vm.budgets.length) {
+            @for (budget of vm.budgets; track budget.id) {
+              <app-budget-bar [budget]="budget" />
+            }
+          } @else {
+            <app-empty-state icon="savings" title="No budgets yet" message="Create a budget to get alerts before you overspend." />
+          }
+        </section>
+
+        <!-- Top merchants -->
+        <section aria-labelledby="merchants-h" class="card flex min-w-0 flex-[1_1_280px] flex-col gap-3 p-5">
+          <h2 id="merchants-h" class="section-title">Top merchants</h2>
+          @if (vm.summary.topMerchants.length) {
+            <ol class="m-0 flex list-none flex-col gap-1 p-0">
+              @for (merchant of vm.summary.topMerchants; track merchant.name; let i = $index) {
+                <li class="flex min-h-[40px] items-center gap-3 text-sm">
+                  <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gray-100 text-xs font-semibold text-gray-700">
+                    {{ i + 1 }}
+                  </span>
+                  <span class="min-w-0 flex-1 truncate">{{ merchant.name }}</span>
+                  <span class="font-medium">{{ merchant.amount | currencyIdr }}</span>
+                </li>
+              }
+            </ol>
+          } @else {
+            <app-empty-state icon="storefront" title="No merchants yet" />
+          }
+        </section>
+      </div>
+
+      <!-- Recent transactions -->
+      <section aria-labelledby="tx-h" class="card flex flex-col gap-3 p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h2 id="tx-h" class="section-title">Recent transactions</h2>
+          <a class="link" routerLink="/app/transactions">View all</a>
+        </div>
+        <app-transaction-table [transactions]="vm.summary.recentTransactions" />
+      </section>
     }
+  }
 </div>
 }

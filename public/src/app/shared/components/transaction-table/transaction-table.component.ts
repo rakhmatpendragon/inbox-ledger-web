@@ -14,11 +14,4 @@ export class TransactionTableComponent {
   @Input({ required: true }) transactions: Transaction[] = [];
   @Input() emptyTitle = 'No transactions yet';
   @Input() emptyMessage = 'Forward a payment email to see it here.';
-
-  readonly columns: readonly string[] = ['date', 'merchant', 'source', 'category', 'amount'];
-
-  trackById(_: number, tx: Transaction): string {
-    return tx.id;
-  }
 }
-

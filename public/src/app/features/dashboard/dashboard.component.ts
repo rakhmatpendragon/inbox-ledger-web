@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { BehaviorSubject, combineLatest, map, switchMap } from 'rxjs';
 
+import { environment } from '@env/environment';
 import { AuthService } from '@app/core/auth/auth.service';
 import { Budget, DashboardSummary } from '@app/core/models';
 import { isBudgetNearLimit } from '@app/core/utils/budget.utils';
@@ -26,7 +28,17 @@ export class DashboardComponent {
   private readonly budgetService = inject(BudgetService);
   private readonly reload$ = new BehaviorSubject<void>(undefined);
 
+  private readonly clipboard = inject(Clipboard);
+  private copiedTimer?: ReturnType<typeof setTimeout>;
+
   readonly user$ = inject(AuthService).user$;
+  readonly fallbackAddress = environment.receiptsAddress;
+  /** True briefly after the receipts address was copied. */
+  readonly copied = signal(false);
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => clearTimeout(this.copiedTimer));
+  }
 
   readonly state$ = this.reload$.pipe(
     switchMap(() =>
@@ -48,6 +60,15 @@ export class DashboardComponent {
       ),
     ),
   );
+
+  copyAddress(address: string): void {
+    if (!this.clipboard.copy(address)) {
+      return;
+    }
+    this.copied.set(true);
+    clearTimeout(this.copiedTimer);
+    this.copiedTimer = setTimeout(() => this.copied.set(false), 2000);
+  }
 
   retry(): void {
     this.reload$.next();

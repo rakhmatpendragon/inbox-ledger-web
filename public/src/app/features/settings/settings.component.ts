@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -23,10 +23,22 @@ export class SettingsComponent {
 
   readonly pushAlertsEnabled = signal(true);
   readonly duplicateProtectionEnabled = signal(true);
+  /** True briefly after the receipts address was copied. */
+  readonly copied = signal(false);
+  private copiedTimer?: ReturnType<typeof setTimeout>;
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => clearTimeout(this.copiedTimer));
+  }
 
   copyAddress(address: string): void {
-    this.clipboard.copy(address);
-    this.snackBar.open('Copied!', undefined, { duration: 2000 });
+    if (!this.clipboard.copy(address)) {
+      this.snackBar.open('Could not copy address', 'Dismiss', { duration: 3500 });
+      return;
+    }
+    this.copied.set(true);
+    clearTimeout(this.copiedTimer);
+    this.copiedTimer = setTimeout(() => this.copied.set(false), 2000);
   }
 
   async signOut(): Promise<void> {

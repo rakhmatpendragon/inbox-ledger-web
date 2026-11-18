@@ -6,19 +6,16 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block' },
   template: `
-    <div
-      class="card h-full p-5"
-      [ngClass]="variant === 'warning' ? 'border-l-4 border-l-amber-400' : ''"
-    >
-      <p class="text-sm text-gray-500">{{ label }}</p>
-      <p
-        class="mt-2 text-2xl font-semibold tracking-tight"
-        [ngClass]="variant === 'warning' ? 'text-amber-600' : 'text-gray-900'"
-      >
-        {{ value }}
-      </p>
+    <div class="card flex h-full flex-col gap-2 p-5">
+      <span class="inline-flex items-center gap-2 text-[13px] text-gray-600">
+        @if (dot) {
+          <span class="h-2 w-2 shrink-0 rounded-full" [style.background]="dot"></span>
+        }
+        {{ label }}
+      </span>
+      <span class="font-display text-[28px] font-semibold leading-tight text-gray-900">{{ value }}</span>
       @if (subtext) {
-        <p class="mt-1 text-xs text-gray-500">{{ subtext }}</p>
+        <span class="text-xs text-gray-600">{{ subtext }}</span>
       }
     </div>
   `,
@@ -27,5 +24,6 @@ export class StatCardComponent {
   @Input({ required: true }) label!: string;
   @Input({ required: true }) value!: string | number;
   @Input() subtext?: string;
-  @Input() variant: 'default' | 'warning' = 'default';
+  /** Optional status dot colour shown before the label. */
+  @Input() dot?: string;
 }

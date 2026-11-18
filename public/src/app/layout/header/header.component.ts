@@ -7,14 +7,14 @@ import { ChangeDetectionStrategy, Component, EventEmitter, Output } from '@angul
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="flex h-14 items-center gap-2 border-b border-gray-200 bg-white px-2 lg:hidden">
-      <button mat-icon-button aria-label="Open navigation" (click)="menuToggle.emit()">
+      <button type="button" class="btn-icon" aria-label="Open navigation" (click)="menuToggle.emit()">
         <mat-icon>menu</mat-icon>
       </button>
-      <span class="text-base font-semibold">Inbox Ledger</span>
+      <app-logo size="sm" />
+      <span class="font-display text-base font-bold">Inbox Ledger</span>
     </header>
   `,
 })
 export class HeaderComponent {
   @Output() readonly menuToggle = new EventEmitter<void>();
 }
-

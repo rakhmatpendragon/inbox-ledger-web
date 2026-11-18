@@ -1,12 +1,11 @@
 .nav-link {
-  @apply flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-300 no-underline transition-colors;
+  @apply flex min-h-[44px] items-center rounded-lg px-3 text-sm text-gray-700 no-underline transition-colors;
 
   &:hover {
-    @apply bg-gray-800 text-white;
+    @apply bg-gray-100 text-gray-900;
   }
 
   &.nav-link--active {
-    @apply bg-gray-800 text-white;
+    @apply bg-brand-50 font-semibold text-brand-600;
   }
 }
-

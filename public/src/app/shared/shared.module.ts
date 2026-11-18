@@ -8,10 +8,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { BadgeComponent } from './components/badge/badge.component';
+import { LogoComponent } from './components/logo/logo.component';
 import { BudgetBarComponent } from './components/budget-bar/budget-bar.component';
 import { StatCardComponent } from './components/stat-card/stat-card.component';
 import {
@@ -25,6 +25,7 @@ import { CurrencyIdrPipe } from './pipes/currency-idr.pipe';
 const DECLARATIONS = [
   BadgeComponent,
   BudgetBarComponent,
+  LogoComponent,
   StatCardComponent,
   TransactionTableComponent,
   LoadingStateComponent,
@@ -43,7 +44,6 @@ const SHARED_IMPORTS = [
   MatMenuModule,
   MatProgressSpinnerModule,
   MatSnackBarModule,
-  MatTableModule,
   MatTooltipModule,
 ];
 

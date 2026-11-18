@@ -1,12 +1,12 @@
 @if (vm$ | async; as vm) {
-  <div class="mx-auto max-w-6xl space-y-6">
-    <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <p class="text-sm font-medium text-gray-500">Ledger</p>
-        <h1 class="text-2xl font-semibold text-gray-900">Transactions</h1>
+  <div class="mx-auto flex max-w-[1180px] flex-col gap-6">
+    <header class="flex flex-wrap items-end justify-between gap-4">
+      <div class="flex flex-col gap-1">
+        <span class="page-eyebrow">Ledger</span>
+        <h1 class="page-title">Transactions</h1>
       </div>
-      <button mat-stroked-button [disabled]="!vm.filtered.length" (click)="exportCsv(vm.filtered)">
-        <mat-icon>download</mat-icon>
+      <button type="button" class="btn-secondary" [disabled]="!vm.filtered.length" (click)="exportCsv(vm.filtered)">
+        <mat-icon class="icon-md">download</mat-icon>
         Export CSV
       </button>
     </header>
@@ -14,7 +14,7 @@
     <!-- Filters -->
     <form
       [formGroup]="filterForm"
-      class="card grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-4"
+      class="card grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4"
       aria-label="Filter transactions"
     >
       <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -55,14 +55,14 @@
     </form>
 
     <!-- Results -->
-    <section class="card">
-      <div class="flex items-center justify-between px-6 pt-5 pb-2">
-        <h2 class="text-base font-semibold text-gray-900">
+    <section class="card flex flex-col gap-3 p-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 class="section-title">
           {{ vm.loading ? 'Loading…' : vm.total + (vm.total === 1 ? ' transaction' : ' transactions') }}
         </h2>
         @if (vm.hasFilters) {
-          <button mat-button type="button" (click)="clearFilters()">
-            <mat-icon>filter_alt_off</mat-icon>
+          <button type="button" class="link inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0" (click)="clearFilters()">
+            <mat-icon class="icon-sm">filter_alt_off</mat-icon>
             Clear filters
           </button>
         }

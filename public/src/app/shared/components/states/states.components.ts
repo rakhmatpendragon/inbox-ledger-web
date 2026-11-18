@@ -55,13 +55,13 @@ export class EmptyStateComponent {
   host: { class: 'block', role: 'alert' },
   template: `
     <div class="flex flex-col items-center justify-center px-4 py-12 text-center">
-      <span class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-500">
+      <span class="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-danger-50 text-danger-600">
         <mat-icon>error_outline</mat-icon>
       </span>
       <p class="text-sm font-medium text-gray-900">Couldn't load this section</p>
       <p class="mt-1 max-w-sm text-sm text-gray-500">{{ message }}</p>
-      <button mat-stroked-button class="mt-4" (click)="retry.emit()">
-        <mat-icon>refresh</mat-icon>
+      <button type="button" class="btn-secondary mt-4" (click)="retry.emit()">
+        <mat-icon class="icon-md">refresh</mat-icon>
         Try again
       </button>
     </div>

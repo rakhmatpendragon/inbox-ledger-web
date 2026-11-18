@@ -1,12 +1,12 @@
 @if (state$ | async; as state) {
-  <div class="mx-auto max-w-4xl space-y-6">
-    <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <p class="text-sm font-medium text-gray-500">Spending limits</p>
-        <h1 class="text-2xl font-semibold text-gray-900">Budgets</h1>
+  <div class="mx-auto flex max-w-4xl flex-col gap-6">
+    <header class="flex flex-wrap items-end justify-between gap-4">
+      <div class="flex flex-col gap-1">
+        <span class="page-eyebrow">Spending limits</span>
+        <h1 class="page-title">Budgets</h1>
       </div>
-      <button mat-flat-button color="primary" type="button" (click)="openCreateDialog()">
-        <mat-icon>add</mat-icon>
+      <button type="button" class="btn-primary" (click)="openCreateDialog()">
+        <mat-icon class="icon-md">add</mat-icon>
         Create budget
       </button>
     </header>
@@ -18,15 +18,15 @@
     } @else {
       @if (state.data; as budgets) {
         @if (budgets.length) {
-          <div class="space-y-4">
+          <div class="flex flex-col gap-4">
             @for (budget of budgets; track budget.id) {
               <div class="card flex items-start gap-4 p-5">
                 <div class="flex-1">
                   <app-budget-bar [budget]="budget" />
                 </div>
                 <button
-                  mat-icon-button
                   type="button"
+                  class="btn-icon -mr-2 -mt-1.5"
                   [matMenuTriggerFor]="menu"
                   [attr.aria-label]="'Actions for ' + budget.name"
                 >
