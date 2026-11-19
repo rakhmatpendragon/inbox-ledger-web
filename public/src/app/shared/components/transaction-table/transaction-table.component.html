@@ -1,0 +1,30 @@
+@if (transactions.length) {
+  <div class="overflow-x-auto">
+    <table class="data-table min-w-[640px]">
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Merchant</th>
+          <th scope="col">Source</th>
+          <th scope="col">Category</th>
+          <th scope="col" class="!text-right">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (tx of transactions; track tx.id) {
+          <tr>
+            <td class="whitespace-nowrap text-gray-600">{{ tx.date | date: 'dd MMM, HH:mm' }}</td>
+            <td class="font-medium text-gray-900">{{ tx.merchant }}</td>
+            <td><app-badge [label]="tx.source" tone="gray" /></td>
+            <td class="whitespace-nowrap text-gray-700">{{ tx.category }}</td>
+            <td class="whitespace-nowrap text-right font-semibold text-gray-900">
+              {{ tx.amount | currencyIdr }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+} @else {
+  <app-empty-state icon="receipt_long" [title]="emptyTitle" [message]="emptyMessage" />
+}

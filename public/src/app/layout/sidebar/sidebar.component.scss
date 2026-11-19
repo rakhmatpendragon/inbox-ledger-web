@@ -1,0 +1,11 @@
+.nav-link {
+  @apply flex min-h-[44px] items-center rounded-lg px-3 text-sm text-gray-700 no-underline transition-colors;
+
+  &:hover {
+    @apply bg-gray-100 text-gray-900;
+  }
+
+  &.nav-link--active {
+    @apply bg-brand-50 font-semibold text-brand-600;
+  }
+}

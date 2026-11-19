@@ -1,0 +1,133 @@
+@if (vm$ | async; as state) {
+  <div class="mx-auto flex max-w-[1180px] flex-col gap-6">
+    <header class="flex flex-col gap-1">
+      <span class="page-eyebrow">Ingestion</span>
+      <h1 class="page-title">Receipts inbox</h1>
+    </header>
+
+    <!-- Forwarding address -->
+    @if (user$ | async; as user) {
+      <section
+        aria-labelledby="fwd-h"
+        class="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-brand-600 p-6 text-white"
+      >
+        <div class="flex min-w-0 flex-col gap-1.5">
+          <h2 id="fwd-h" class="m-0 text-sm font-medium text-brand-100">Forward payment emails to</h2>
+          <span class="break-all font-display text-[26px] font-semibold leading-tight">
+            {{ user.receiptsAddress || fallbackAddress }}
+          </span>
+          <span class="text-[13px] text-brand-100">
+            Bank transfers, QRIS confirmations, e-wallet and marketplace receipts. Set up a Gmail
+            filter to forward them automatically.
+          </span>
+        </div>
+        <button
+          type="button"
+          class="btn min-h-[44px] shrink-0 border-0 bg-white px-[18px] font-semibold text-brand-600 hover:bg-brand-50 focus-visible:ring-white focus-visible:ring-offset-brand-600"
+          (click)="copyAddress(user.receiptsAddress || fallbackAddress)"
+        >
+          {{ copied() ? 'Copied' : 'Copy address' }}
+        </button>
+      </section>
+    }
+
+    @if (state.loading) {
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="card"><app-loading-state [rows]="2" /></div>
+        }
+      </div>
+      <div class="card"><app-loading-state [rows]="6" /></div>
+    } @else if (state.error) {
+      <div class="card"><app-error-state [message]="state.error" (retry)="retry()" /></div>
+    } @else {
+      @if (state.data; as vm) {
+        <!-- Pipeline counters -->
+        <section class="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4" aria-label="Pipeline status">
+          <app-stat-card label="Parsed" [value]="vm.stats.parsed" dot="#0F766E" />
+          <app-stat-card label="In queue" [value]="vm.stats.inQueue" dot="#175CD3" />
+          <app-stat-card label="Duplicates skipped" [value]="vm.stats.duplicatesSkipped" dot="#667085" />
+          <app-stat-card label="Failed" [value]="vm.stats.failed" dot="#D92D20" />
+        </section>
+
+        <!-- Received emails -->
+        <section aria-labelledby="list-h" class="card flex flex-col gap-3.5 p-5">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h2 id="list-h" class="section-title">Received emails</h2>
+            <div role="group" aria-label="Filter by status" class="flex flex-wrap gap-2">
+              @for (tab of tabs; track tab) {
+                <button
+                  type="button"
+                  class="chip"
+                  [attr.aria-pressed]="vm.activeTab === tab"
+                  (click)="selectTab(tab)"
+                >
+                  {{ tab }}
+                </button>
+              }
+            </div>
+          </div>
+
+          @if (vm.filtered.length) {
+            <div class="overflow-x-auto">
+              <table class="data-table min-w-[680px]">
+                <thead>
+                  <tr>
+                    <th scope="col">Received</th>
+                    <th scope="col">From</th>
+                    <th scope="col">Subject</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="!text-right">Result</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (r of vm.filtered; track r.id) {
+                    <tr>
+                      <td class="whitespace-nowrap text-gray-600">{{ r.receivedAt | date: 'dd MMM, HH:mm' }}</td>
+                      <td class="whitespace-nowrap font-medium text-gray-900">{{ r.from }}</td>
+                      <td class="text-gray-700">{{ r.subject }}</td>
+                      <td>
+                        <app-badge [label]="r.status">
+                          @if (r.status === 'Processing') {
+                            <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-info-700"></span>
+                          }
+                        </app-badge>
+                      </td>
+                      <td class="whitespace-nowrap text-right">
+                        <div class="inline-flex items-center justify-end gap-1">
+                          <span>{{ r.result ?? 'In queue' }}</span>
+                          @if (r.status === 'Failed') {
+                            <button
+                              type="button"
+                              class="btn-icon h-8 w-8"
+                              matTooltip="Retry parsing"
+                              aria-label="Retry parsing receipt"
+                              (click)="retryReceipt(r)"
+                            >
+                              <mat-icon class="icon-md">refresh</mat-icon>
+                            </button>
+                          }
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <app-empty-state
+              icon="mark_email_read"
+              title="No receipts in this view"
+              message="Forwarded payment emails matching this filter will show up here."
+            />
+          }
+
+          <p class="m-0 text-xs text-gray-600">
+            Duplicates are detected automatically, so forwarding the same receipt twice never creates
+            two transactions. Failed emails can be retried after a parser update.
+          </p>
+        </section>
+      }
+    }
+  </div>
+}
